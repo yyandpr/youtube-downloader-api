@@ -2,7 +2,7 @@ import yt_dlp
 import os
 from pathlib import Path
 from typing import Optional
-from .config import FFMPEG_PATH, OUTPUT_DIR
+from .config import FFMPEG_PATH, OUTPUT_DIR, COOKIES_FILE
 from .download_manager import TaskStage
 
 def create_yt_dlp_opts(task_id: str, translate_subtitles: bool = False, progress_callback=None):
@@ -32,6 +32,10 @@ def create_yt_dlp_opts(task_id: str, translate_subtitles: bool = False, progress
         'quiet': True,
         'no_warnings': True,
     }
+
+    # Use YouTube cookies if available
+    if COOKIES_FILE.exists():
+        opts['cookies'] = str(COOKIES_FILE)
 
     # Only embed subtitles when translating - this keeps original video intact
     if translate_subtitles:
