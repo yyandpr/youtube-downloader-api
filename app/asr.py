@@ -1,5 +1,5 @@
-import whisper
 import os
+import sys
 from pathlib import Path
 
 # Load model once at startup
@@ -9,8 +9,10 @@ def get_model():
     """Load and return Whisper model."""
     global _model
     if _model is None:
+        from faster_whisper import WhisperModel
         # Use base model for speed, can change to 'small', 'medium', 'large'
-        _model = whisper.load_model("base")
+        # compute_type="int8" is faster and uses less memory
+        _model = WhisperModel("base", device="cpu", compute_type="int8")
     return _model
 
 def transcribe_audio(audio_path: str, language: str = "en") -> list[dict]:
@@ -21,17 +23,17 @@ def transcribe_audio(audio_path: str, language: str = "en") -> list[dict]:
     model = get_model()
 
     # Transcribe
-    result = model.transcribe(audio_path, language=language, fp16=False)
+    segments, info = model.transcribe(audio_path, language=language, beam_size=5)
 
-    segments = []
-    for segment in result['segments']:
-        segments.append({
-            'start': segment['start'],
-            'end': segment['end'],
-            'text': segment['text'].strip()
+    result = []
+    for segment in segments:
+        result.append({
+            'start': segment.start,
+            'end': segment.end,
+            'text': segment.text.strip()
         })
 
-    return segments
+    return result
 
 def segments_to_srt(segments: list[dict], output_path: str):
     """Convert Whisper segments to SRT format."""
@@ -55,9 +57,8 @@ def format_timestamp(seconds: float) -> str:
 
 def extract_audio_from_video(video_path: str, output_path: str = None) -> str:
     """Extract audio from video file to WAV format."""
-    import sys
-    from .config import FFMPEG_PATH
     import subprocess
+    from .config import FFMPEG_PATH
 
     if output_path is None:
         output_path = video_path.rsplit('.', 1)[0] + '.wav'
