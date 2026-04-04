@@ -1,0 +1,8 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+yt-dlp==2026.03.17
+python-multipart==0.0.12
+aiofiles==24.1.0
+deep-translator==1.11.4
+sse-starlette==2.2.1
+openai-whisper==20250306

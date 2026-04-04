@@ -1,0 +1,13 @@
+services:
+  - name: youtube-downloader-api
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    plan: free
+    healthCheckPath: /api/output_dir
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: FFMPEG_PATH
+        value: /usr/bin
+      - key: OUTPUT_DIR
+        value: /tmp/downloads
