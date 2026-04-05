@@ -31,6 +31,8 @@ def create_yt_dlp_opts(task_id: str, translate_subtitles: bool = False, progress
         'ffmpeg_location': FFMPEG_PATH,
         'quiet': True,
         'no_warnings': True,
+        'retries': 3,
+        'fragment_retries': 3,
     }
 
     # Use YouTube cookies if available
